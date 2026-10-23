@@ -1,104 +1,97 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginUser, registerUser } from "./api/index";
+import "./pages/Auth.css";
+
+function Input({ id, className = "", ...props }) {
+  return (
+    <div className="ui-input-group">
+      <input id={id} className={`ui-input ${className}`} {...props} />
+    </div>
+  );
+}
+
+function Button({ children, variant = "primary", ...props }) {
+  return (
+    <button className={`ui-btn ${variant}`} {...props}>
+      {children}
+    </button>
+  );
+}
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/main");
+    setError(null);
+
+    if (!email || !password || (!isLogin && !username)) {
+      setError("Пожалуйста, заполните все поля");
+      return;
+    }
+
+    try {
+      if (isLogin) {
+        const data = await loginUser(email, password);
+        localStorage.setItem("token", data.access_token);
+        navigate("/main");
+      } else {
+        await registerUser(email, password);
+        setIsLogin(true);
+        setError("Регистрация успешна! Теперь вы можете войти");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#181818",
-        color: "#fff",
-        fontFamily: "sans-serif",
-      }}
-    >
-      <div
-        style={{
-          background: "#2e2e2e",
-          padding: "40px",
-          borderRadius: "12px",
-          width: "320px",
-          textAlign: "center",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
-        }}
-      >
-        <h2 style={{ marginBottom: "24px" }}>
-          {isLogin ? "Войти в SkyproWallet" : "Регистрация"}
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2 className="auth-title">
+          {isLogin ? "Войти в Skypro.Wallet" : "Регистрация"}
         </h2>
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-        >
+
+        {error && <p className="error-message">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="auth-form">
           {!isLogin && (
-            <input
+            <Input
               type="text"
               placeholder="Имя пользователя"
-              style={{
-                padding: "12px",
-                borderRadius: "6px",
-                border: "1px solid #4e4e4e",
-                background: "#181818",
-                color: "#fff",
-              }}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           )}
-          <input
+          <Input
             type="email"
             placeholder="Электронная почта"
-            style={{
-              padding: "12px",
-              borderRadius: "6px",
-              border: "1px solid #4e4e4e",
-              background: "#181818",
-              color: "#fff",
-            }}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
-          <input
+          <Input
             type="password"
             placeholder="Пароль"
-            style={{
-              padding: "12px",
-              borderRadius: "6px",
-              border: "1px solid #4e4e4e",
-              background: "#181818",
-              color: "#fff",
-            }}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
-          <button
-            type="submit"
-            style={{
-              padding: "12px",
-              borderRadius: "6px",
-              border: "none",
-              background: "#565ee7",
-              color: "#fff",
-              fontWeight: "bold",
-              cursor: "pointer",
-              marginTop: "10px",
-            }}
-          >
+          <Button type="submit" variant="primary">
             {isLogin ? "Войти" : "Создать аккаунт"}
-          </button>
+          </Button>
         </form>
+        
         <p
-          onClick={() => setIsLogin(!isLogin)}
-          style={{
-            marginTop: "20px",
-            fontSize: "14px",
-            color: "#a5a5a5",
-            cursor: "pointer",
-            textDecoration: "underline",
+          onClick={() => {
+            setIsLogin(!isLogin);
+            setError(null);
           }}
+          className="auth-toggle-link"
         >
           {isLogin
             ? "Еще нет аккаунта? Зарегистрироваться"

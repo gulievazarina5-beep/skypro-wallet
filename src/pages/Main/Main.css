@@ -1,101 +1,150 @@
 .main-container {
-    max-width: 1200px;
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 40px;
     font-family: sans-serif;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 .main-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #eceff1;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+    padding-bottom: 24px;
+    margin-bottom: 40px;
+    background: transparent;
 }
 
-.balance-card {
-    background: #e3f2fd;
-    padding: 12px 20px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.balance-card span {
-    font-size: 14px;
-    color: #546e7a;
-}
-
-.balance-card strong {
+.logo-title {
     font-size: 24px;
-    color: #0d47a1;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    cursor: pointer;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.nav-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: #6332FA;
+}
+
+.nav-link.logout {
+    color: #1e293b;
 }
 
 .main-content {
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 30px;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    align-items: start;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .main-content {
         grid-template-columns: 1fr;
     }
 }
 
-.form-section,
-.table-section {
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e0e0e0;
-}
-
-.form-section h3,
-.table-section h3 {
+.section-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e293b;
     margin-top: 0;
+    margin-bottom: 24px;
+}
+
+.card-wrapper {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+    border: 1px solid #f1f5f9;
+}
+
+.card-wrapper h3 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.ui-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     margin-bottom: 20px;
-    color: #37474f;
-}
-
-.transaction-form .input-group {
-    margin-bottom: 16px;
-}
-
-.transaction-form label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 14px;
-    color: #607d8b;
-}
-
-.transaction-form input,
-.transaction-form select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #cfd8dc;
-    border-radius: 6px;
+}
+
+.ui-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.ui-input,
+.ui-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
     box-sizing: border-box;
-    font-size: 16px;
+    font-size: 14px;
+    color: #1e293b;
+    background-color: white;
+    outline: none;
+    transition: border-color 0.2s;
 }
 
-.add-btn {
+.ui-input:focus,
+.ui-select:focus {
+    border-color: #6332FA;
+}
+
+.ui-input::placeholder {
+    color: #94a3b8;
+}
+
+.ui-input:disabled {
+    background-color: #f8fafc;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.ui-btn {
     width: 100%;
-    padding: 12px;
-    background: #2e7d32;
-    color: white;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
     border: none;
-    border-radius: 6px;
-    font-size: 16px;
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
+    transition: background-color 0.2s;
 }
 
-.add-btn:hover {
-    background: #1b5e20;
+.ui-btn.primary {
+    background: #6332FA;
+    color: white;
+}
+
+.ui-btn.primary:hover {
+    background: #5024dd;
 }
 
 .transactions-table {
@@ -105,22 +154,30 @@
 
 .transactions-table th,
 .transactions-table td {
-    padding: 12px;
+    padding: 16px;
     text-align: left;
-    border-bottom: 1px solid #eceff1;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
 }
 
 .transactions-table th {
-    color: #78909c;
+    color: #94a3b8;
+    font-weight: 500;
+    padding-top: 0;
+}
+
+.transactions-table td {
+    color: #1e293b;
+}
+
+.amount-cell {
     font-weight: 600;
+    color: #1e293b;
 }
 
-.amount-income {
-    color: #2e7d32;
-    font-weight: bold;
-}
-
-.amount-expense {
-    color: #c62828;
-    font-weight: bold;
+.error-message {
+    color: #ef4444;
+    font-size: 14px;
+    margin-bottom: 16px;
+    margin-top: 0;
 }
