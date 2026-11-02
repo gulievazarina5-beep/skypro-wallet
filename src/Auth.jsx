@@ -27,6 +27,18 @@ export default function Auth() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    if (!email.includes("@")) {
+      setError("Введите корректный email (например, user@mail.ru)");
+      return false;
+    }
+    if (password.length < 6) {
+      setError("Пароль должен содержать не менее 6 символов");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -36,13 +48,15 @@ export default function Auth() {
       return;
     }
 
+    if (!validateForm()) return;
+
     try {
       if (isLogin) {
         const data = await loginUser(email, password);
         localStorage.setItem("token", data.access_token);
         navigate("/main");
       } else {
-        await registerUser(email, password);
+        await registerUser(email, password, username);
         setIsLogin(true);
         setError("Регистрация успешна! Теперь вы можете войти");
       }
@@ -90,6 +104,9 @@ export default function Auth() {
           onClick={() => {
             setIsLogin(!isLogin);
             setError(null);
+            setEmail("");
+            setPassword("");
+            setUsername("");
           }}
           className="auth-toggle-link"
         >

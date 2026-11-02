@@ -43,29 +43,29 @@ function Button({ children, variant = "primary", ...props }) {
 export default function Main() {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
-  const [type, setType] = useState("expense");
   const [category, setCategory] = useState("others");
   const [description, setDescription] = useState("");
   const [sum, setSum] = useState("");
   const [error, setError] = useState(null);
+  const [period, setPeriod] = useState("");
 
-  const fetchTransactions = async () => {
+  const fetchTransactionsList = async (currentPeriod) => {
     try {
-      const data = await getTransactions();
-      setTransactions(Array.isArray(data) ? data : []);
+      const data = await getTransactions(currentPeriod);
+      setTransactions(Array.isArray(data) ? data : data.transactions || []);
     } catch (err) {
       setError(err.message);
     }
   };
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    fetchTransactionsList(period);
+  }, [period]);
 
-  const totalBalance = transactions.reduce((acc, curr) => {
-    const value = Number(curr.sum) || 0;
-    return acc + value;
-  }, 0);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/auth");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -86,15 +86,15 @@ export default function Main() {
     const formattedDate = `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()}`;
 
     try {
-      const updatedList = await addTransaction({
+      await addTransaction({
         description,
         sum: numericSum,
         category,
         date: formattedDate,
       });
-      setTransactions(Array.isArray(updatedList) ? updatedList : [updatedList, ...transactions]);
       setDescription("");
       setSum("");
+      fetchTransactionsList(period);
     } catch (err) {
       setError(err.message);
     }
@@ -107,15 +107,23 @@ export default function Main() {
           <h1 className="logo-title" onClick={() => navigate("/main")}>Skypro.Wallet</h1>
         </div>
         <div className="header-right">
-          <span className="nav-link" onClick={() => navigate("/main")}>Мои расходы</span>
+          <span className="nav-link active" onClick={() => navigate("/main")}>Мои расходы</span>
           <span className="nav-link" onClick={() => navigate("/analytics")}>Анализ расходов</span>
-          <span className="nav-link logout" onClick={() => navigate("/auth")}>Выйти</span>
+          <span className="nav-link logout" onClick={handleLogout}>Выйти</span>
         </div>
       </header>
 
       <div className="main-content">
         <section className="table-section">
-          <h2 className="section-title">Мои расходы</h2>
+          <div className="table-header-row">
+            <h2 className="section-title">Мои расходы</h2>
+            <div className="period-filters">
+              <button className={period === "" ? "active-filter" : ""} onClick={() => setPeriod("")}>Все</button>
+              <button className={period === "week" ? "active-filter" : ""} onClick={() => setPeriod("week")}>Неделя</button>
+              <button className={period === "month" ? "active-filter" : ""} onClick={() => setPeriod("month")}>Месяц</button>
+            </div>
+          </div>
+
           <div className="card-wrapper">
             <h3>Таблица расходов</h3>
             <table className="transactions-table">
@@ -128,16 +136,20 @@ export default function Main() {
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((item, index) => (
-                  <tr key={item._id || index}>
-                    <td>{item.description}</td>
-                    <td>{CATEGORIES_MAP[item.category] || "Другое"}</td>
-                    <td>{item.date || "—"}</td>
-                    <td className="amount-cell">
-                      {item.sum} ₽
-                    </td>
+                {transactions.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" style={{ textAlign: "center" }}>Расходов за этот период нет</td>
                   </tr>
-                ))}
+                ) : (
+                  transactions.map((item, index) => (
+                    <tr key={item._id || index}>
+                      <td>{item.description}</td>
+                      <td>{CATEGORIES_MAP[item.category] || "Другое"}</td>
+                      <td>{item.date || "—"}</td>
+                      <td className="amount-cell">{item.sum} ₽</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

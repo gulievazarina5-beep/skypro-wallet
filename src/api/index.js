@@ -37,7 +37,7 @@ export const addTransaction = async (transactionData) => {
   try {
     const token = localStorage.getItem('token');
     const response = await axios.post(URL_TRANSACTIONS, transactionData, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
   } catch (error) {
