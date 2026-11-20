@@ -3,66 +3,61 @@ import { useNavigate } from "react-router-dom";
 import { loginUser, registerUser } from "./api/index";
 import "./pages/Auth.css";
 
-function Input({ id, className = "", ...props }) {
-  return (
-    <div className="ui-input-group">
-      <input id={id} className={`ui-input ${className}`} {...props} />
-    </div>
-  );
-}
-
-function Button({ children, variant = "primary", ...props }) {
-  return (
-    <button className={`ui-btn ${variant}`} {...props}>
-      {children}
-    </button>
-  );
-}
-
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const navigate = useNavigate();
-
-  const validateForm = () => {
-    if (!email.includes("@")) {
-      setError("Введите корректный email (например, user@mail.ru)");
-      return false;
-    }
-    if (password.length < 6) {
-      setError("Пароль должен содержать не менее 6 символов");
-      return false;
-    }
-    return true;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccessMessage(null);
 
-    if (!email || !password || (!isLogin && !username)) {
+    if (!login.trim() || !password.trim() || (!isLogin && !name.trim())) {
       setError("Пожалуйста, заполните все поля");
       return;
     }
 
-    if (!validateForm()) return;
+    if (password.length < 6) {
+      setError("Пароль должен содержать не менее 6 символов");
+      return;
+    }
 
     try {
       if (isLogin) {
-        const data = await loginUser(email, password);
-        localStorage.setItem("token", data.access_token);
-        navigate("/main");
+        const data = await loginUser(login.trim(), password);
+        const token = data.user?.token || data.token || data.access_token;
+        
+        if (token) {
+          localStorage.setItem("token", token);
+          navigate("/main");
+        } else {
+          setError("Не удалось получить токен авторизации");
+        }
       } else {
-        await registerUser(email, password, username);
+        await registerUser(login.trim(), password, name.trim());
         setIsLogin(true);
-        setError("Регистрация успешна! Теперь вы можете войти");
+        setSuccessMessage("Регистрация успешна! Теперь вы можете войти");
+        setLogin("");
+        setPassword("");
+        setName("");
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Ошибка запроса");
     }
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setError(null);
+    setSuccessMessage(null);
+    setLogin("");
+    setPassword("");
+    setName("");
   };
 
   return (
@@ -73,43 +68,51 @@ export default function Auth() {
         </h2>
 
         {error && <p className="error-message">{error}</p>}
+        {successMessage && (
+          <p className="error-message" style={{ color: "green" }}>
+            {successMessage}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="auth-form">
           {!isLogin && (
-            <Input
-              type="text"
-              placeholder="Имя пользователя"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+            <div className="ui-input-group">
+              <input
+                type="text"
+                className="ui-input"
+                placeholder="Имя"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
           )}
-          <Input
-            type="email"
-            placeholder="Электронная почта"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Пароль"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Button type="submit" variant="primary">
+
+          <div className="ui-input-group">
+            <input
+              type="text"
+              className="ui-input"
+              placeholder="Логин"
+              value={login}
+              onChange={(e) => setLogin(e.target.value)}
+            />
+          </div>
+
+          <div className="ui-input-group">
+            <input
+              type="password"
+              className="ui-input"
+              placeholder="Пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <button type="submit" className="ui-btn primary">
             {isLogin ? "Войти" : "Создать аккаунт"}
-          </Button>
+          </button>
         </form>
-        
-        <p
-          onClick={() => {
-            setIsLogin(!isLogin);
-            setError(null);
-            setEmail("");
-            setPassword("");
-            setUsername("");
-          }}
-          className="auth-toggle-link"
-        >
+
+        <p onClick={toggleMode} className="auth-toggle-link">
           {isLogin
             ? "Еще нет аккаунта? Зарегистрироваться"
             : "Уже есть аккаунт? Войти"}

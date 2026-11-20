@@ -1,150 +1,216 @@
-.main-container {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 40px;
-    font-family: sans-serif;
-    background-color: #f8fafc;
+.main-page {
+    background-color: #f4f5f6;
     min-height: 100vh;
-    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .main-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    width: 100%;
+}
+
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 64px;
+    padding: 0 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 24px;
-    margin-bottom: 40px;
-    background: transparent;
 }
 
 .logo-title {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 700;
-    color: #1e293b;
+    color: #000000;
     margin: 0;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    height: 100%;
 }
 
 .header-right {
     display: flex;
     align-items: center;
-    gap: 32px;
 }
 
 .nav-link {
     font-size: 14px;
     font-weight: 500;
-    color: #64748b;
+    color: #000000;
     cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
     transition: color 0.2s;
 }
 
 .nav-link:hover {
-    color: #6332FA;
+    color: #7334ea;
+}
+
+.nav-link.active {
+    color: #7334ea;
+    font-weight: 600;
+}
+
+.nav-link.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #7334ea;
 }
 
 .nav-link.logout {
-    color: #1e293b;
+    font-weight: 600;
 }
 
-.main-content {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 40px;
-    align-items: start;
-}
-
-@media (max-width: 1024px) {
-    .main-content {
-        grid-template-columns: 1fr;
-    }
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 36px 24px;
+    box-sizing: border-box;
 }
 
 .section-title {
     font-size: 32px;
     font-weight: 700;
-    color: #1e293b;
+    color: #000000;
     margin-top: 0;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 789px 379px;
+    gap: 32px;
+    align-items: start;
+}
+
+@media (max-width: 1240px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
 }
 
 .card-wrapper {
-    background: white;
+    background: #ffffff;
     padding: 32px;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
-    border: 1px solid #f1f5f9;
+    border-radius: 30px;
+    box-shadow: 0 20px 67px -12px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
 }
 
 .card-wrapper h3 {
     margin-top: 0;
     margin-bottom: 24px;
-    font-size: 18px;
-    font-weight: 600;
-    color: #1e293b;
+    font-size: 24px;
+    font-weight: 700;
+    color: #000000;
 }
 
 .ui-input-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 24px;
     width: 100%;
 }
 
 .ui-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #64748b;
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
 }
 
-.ui-input,
-.ui-select {
+.ui-input {
     width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    padding: 12px 14px;
+    border: 0.5px solid #999999;
+    border-radius: 6px;
     box-sizing: border-box;
-    font-size: 14px;
-    color: #1e293b;
-    background-color: white;
+    font-size: 12px;
+    color: #000000;
+    background-color: #ffffff;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background-color 0.2s;
 }
 
-.ui-input:focus,
-.ui-select:focus {
-    border-color: #6332FA;
+.ui-input:focus {
+    border-color: #7334ea;
+    background-color: #f1ebfd;
 }
 
 .ui-input::placeholder {
-    color: #94a3b8;
+    color: #999999;
 }
 
-.ui-input:disabled {
-    background-color: #f8fafc;
-    color: #94a3b8;
-    cursor: not-allowed;
+.categories-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 30px;
+    border: none;
+    background-color: #f4f5f6;
+    color: #000000;
+    font-size: 12px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.category-pill:hover {
+    background-color: #e9e4f5;
+}
+
+.category-pill.active {
+    background-color: #f1ebfd;
+    color: #7334ea;
+    font-weight: 500;
+}
+
+.pill-icon {
+    font-size: 13px;
 }
 
 .ui-btn {
     width: 100%;
-    padding: 14px;
-    font-size: 14px;
+    padding: 12px;
+    font-size: 12px;
     font-weight: 600;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
 .ui-btn.primary {
-    background: #6332FA;
-    color: white;
+    background: #7334ea;
+    color: #ffffff;
 }
 
 .ui-btn.primary:hover {
-    background: #5024dd;
+    background: #5e24cc;
 }
 
 .transactions-table {
@@ -152,32 +218,55 @@
     border-collapse: collapse;
 }
 
-.transactions-table th,
-.transactions-table td {
-    padding: 16px;
-    text-align: left;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 14px;
-}
-
 .transactions-table th {
-    color: #94a3b8;
-    font-weight: 500;
-    padding-top: 0;
+    padding: 0 12px 14px 12px;
+    text-align: left;
+    border-bottom: 0.5px solid #999999;
+    font-size: 12px;
+    color: #999999;
+    font-weight: 400;
 }
 
 .transactions-table td {
-    color: #1e293b;
+    padding: 14px 12px;
+    text-align: left;
+    font-size: 12px;
+    color: #000000;
+}
+
+.empty-table-cell {
+    text-align: center !important;
+    color: #999999 !important;
+    padding: 24px !important;
 }
 
 .amount-cell {
-    font-weight: 600;
-    color: #1e293b;
+    font-weight: 400;
+    color: #000000;
+}
+
+.action-cell {
+    width: 30px;
+    text-align: right !important;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.5;
+    padding: 0;
+    transition: opacity 0.2s;
+}
+
+.delete-btn:hover {
+    opacity: 1;
 }
 
 .error-message {
     color: #ef4444;
-    font-size: 14px;
+    font-size: 12px;
     margin-bottom: 16px;
     margin-top: 0;
 }
