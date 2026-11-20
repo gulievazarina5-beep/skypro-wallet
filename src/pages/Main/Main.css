@@ -1,0 +1,272 @@
+.main-page {
+    background-color: #f4f5f6;
+    min-height: 100vh;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.main-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    width: 100%;
+}
+
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 64px;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    height: 100%;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.nav-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000000;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: #7334ea;
+}
+
+.nav-link.active {
+    color: #7334ea;
+    font-weight: 600;
+}
+
+.nav-link.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #7334ea;
+}
+
+.nav-link.logout {
+    font-weight: 600;
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 36px 24px;
+    box-sizing: border-box;
+}
+
+.section-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #000000;
+    margin-top: 0;
+    margin-bottom: 32px;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 789px 379px;
+    gap: 32px;
+    align-items: start;
+}
+
+@media (max-width: 1240px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card-wrapper {
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 30px;
+    box-shadow: 0 20px 67px -12px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+}
+
+.card-wrapper h3 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #000000;
+}
+
+.ui-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.ui-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.ui-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 0.5px solid #999999;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: #000000;
+    background-color: #ffffff;
+    outline: none;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.ui-input:focus {
+    border-color: #7334ea;
+    background-color: #f1ebfd;
+}
+
+.ui-input::placeholder {
+    color: #999999;
+}
+
+.categories-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 30px;
+    border: none;
+    background-color: #f4f5f6;
+    color: #000000;
+    font-size: 12px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.category-pill:hover {
+    background-color: #e9e4f5;
+}
+
+.category-pill.active {
+    background-color: #f1ebfd;
+    color: #7334ea;
+    font-weight: 500;
+}
+
+.pill-icon {
+    font-size: 13px;
+}
+
+.ui-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.ui-btn.primary {
+    background: #7334ea;
+    color: #ffffff;
+}
+
+.ui-btn.primary:hover {
+    background: #5e24cc;
+}
+
+.transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transactions-table th {
+    padding: 0 12px 14px 12px;
+    text-align: left;
+    border-bottom: 0.5px solid #999999;
+    font-size: 12px;
+    color: #999999;
+    font-weight: 400;
+}
+
+.transactions-table td {
+    padding: 14px 12px;
+    text-align: left;
+    font-size: 12px;
+    color: #000000;
+}
+
+.empty-table-cell {
+    text-align: center !important;
+    color: #999999 !important;
+    padding: 24px !important;
+}
+
+.amount-cell {
+    font-weight: 400;
+    color: #000000;
+}
+
+.action-cell {
+    width: 30px;
+    text-align: right !important;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.5;
+    padding: 0;
+    transition: opacity 0.2s;
+}
+
+.delete-btn:hover {
+    opacity: 1;
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 12px;
+    margin-bottom: 16px;
+    margin-top: 0;
+}
