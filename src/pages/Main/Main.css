@@ -13,11 +13,12 @@
 .header-inner {
     max-width: 1200px;
     margin: 0 auto;
-    height: 64px;
+    min-height: 64px;
     padding: 0 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-sizing: border-box;
 }
 
 .logo-title {
@@ -35,7 +36,7 @@
     display: flex;
     align-items: center;
     gap: 48px;
-    height: 100%;
+    height: 64px;
 }
 
 .header-right {
@@ -154,6 +155,11 @@
     background-color: #f1ebfd;
 }
 
+.ui-input:disabled {
+    background-color: #f4f5f6;
+    cursor: not-allowed;
+}
+
 .ui-input::placeholder {
     color: #999999;
 }
@@ -179,7 +185,7 @@
     transition: all 0.2s;
 }
 
-.category-pill:hover {
+.category-pill:hover:not(:disabled) {
     background-color: #e9e4f5;
 }
 
@@ -190,7 +196,8 @@
 }
 
 .pill-icon {
-    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
 }
 
 .ui-btn {
@@ -209,12 +216,24 @@
     color: #ffffff;
 }
 
-.ui-btn.primary:hover {
+.ui-btn.primary:hover:not(:disabled) {
     background: #5e24cc;
+}
+
+.ui-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .transactions-table {
     width: 100%;
+    min-width: 480px;
     border-collapse: collapse;
 }
 
@@ -241,8 +260,9 @@
 }
 
 .amount-cell {
-    font-weight: 400;
+    font-weight: 500;
     color: #000000;
+    white-space: nowrap;
 }
 
 .action-cell {
@@ -254,14 +274,16 @@
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 14px;
-    opacity: 0.5;
-    padding: 0;
-    transition: opacity 0.2s;
+    color: #999999;
+    padding: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
 }
 
 .delete-btn:hover {
-    opacity: 1;
+    color: #ef4444;
 }
 
 .error-message {
@@ -269,4 +291,45 @@
     font-size: 12px;
     margin-bottom: 16px;
     margin-top: 0;
+}
+
+
+@media (max-width: 768px) {
+    .header-inner {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .header-center {
+        order: 3;
+        width: 100%;
+        height: 40px;
+        justify-content: center;
+        gap: 24px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .main-container {
+        padding: 24px 16px;
+    }
+
+    .section-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .main-content {
+        gap: 20px;
+    }
+
+    .card-wrapper {
+        padding: 20px 16px;
+        border-radius: 20px;
+    }
+
+    .card-wrapper h3 {
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
 }

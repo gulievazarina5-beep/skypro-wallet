@@ -10,54 +10,68 @@ export default function Auth() {
   const [name, setName] = useState("");
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const resetForm = (clearMessages = true) => {
+    setLogin("");
+    setPassword("");
+    setName("");
+    if (clearMessages) {
+      setError(null);
+      setSuccessMessage(null);
+    }
+  };
+
+  const validateForm = () => {
+    if (!login.trim() || !password.trim() || (!isLogin && !name.trim())) {
+      return "Пожалуйста, заполните все поля";
+    }
+    if (password.length < 6) {
+      return "Пароль должен содержать не менее 6 символов";
+    }
+    return null;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
 
-    if (!login.trim() || !password.trim() || (!isLogin && !name.trim())) {
-      setError("Пожалуйста, заполните все поля");
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
-    if (password.length < 6) {
-      setError("Пароль должен содержать не менее 6 символов");
-      return;
-    }
-
+    setIsLoading(true);
     try {
       if (isLogin) {
         const data = await loginUser(login.trim(), password);
         const token = data.user?.token || data.token || data.access_token;
-        
-        if (token) {
-          localStorage.setItem("token", token);
-          navigate("/main");
-        } else {
-          setError("Не удалось получить токен авторизации");
+
+        if (!token) {
+          throw new Error("Не удалось получить токен авторизации");
         }
+
+        localStorage.setItem("token", token);
+        navigate("/main");
       } else {
         await registerUser(login.trim(), password, name.trim());
         setIsLogin(true);
+        resetForm(false);
         setSuccessMessage("Регистрация успешна! Теперь вы можете войти");
-        setLogin("");
-        setPassword("");
-        setName("");
       }
     } catch (err) {
       setError(err.message || "Ошибка запроса");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const toggleMode = () => {
-    setIsLogin(!isLogin);
-    setError(null);
-    setSuccessMessage(null);
-    setLogin("");
-    setPassword("");
-    setName("");
+    setIsLogin((prev) => !prev);
+    resetForm(true);
   };
 
   return (
@@ -68,11 +82,7 @@ export default function Auth() {
         </h2>
 
         {error && <p className="error-message">{error}</p>}
-        {successMessage && (
-          <p className="error-message" style={{ color: "green" }}>
-            {successMessage}
-          </p>
-        )}
+        {successMessage && <p className="success-message">{successMessage}</p>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           {!isLogin && (
@@ -83,6 +93,7 @@ export default function Auth() {
                 placeholder="Имя"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                disabled={isLoading}
               />
             </div>
           )}
@@ -94,6 +105,7 @@ export default function Auth() {
               placeholder="Логин"
               value={login}
               onChange={(e) => setLogin(e.target.value)}
+              disabled={isLoading}
             />
           </div>
 
@@ -104,11 +116,16 @@ export default function Auth() {
               placeholder="Пароль"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
             />
           </div>
 
-          <button type="submit" className="ui-btn primary">
-            {isLogin ? "Войти" : "Создать аккаунт"}
+          <button type="submit" className="ui-btn primary" disabled={isLoading}>
+            {isLoading
+              ? "Загрузка..."
+              : isLogin
+              ? "Войти"
+              : "Создать аккаунт"}
           </button>
         </form>
 

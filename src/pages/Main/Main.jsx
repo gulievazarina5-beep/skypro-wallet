@@ -86,14 +86,10 @@ const CATEGORIES_LIST = [
   },
 ];
 
-const CATEGORIES_MAP = {
-  food: "Еда",
-  transport: "Транспорт",
-  housing: "Жилье",
-  joy: "Развлечения",
-  education: "Образование",
-  others: "Другое",
-};
+const CATEGORIES_MAP = Object.fromEntries(
+  CATEGORIES_LIST.map((cat) => [cat.key, cat.label])
+);
+
 const formatDateForDisplay = (dateStr) => {
   if (!dateStr) return "—";
   const dateObj = new Date(dateStr);
@@ -112,20 +108,19 @@ const formatDateForApi = (inputDate) => {
     return `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()}`;
   }
   if (inputDate.includes(".")) {
-    const parts = inputDate.split(".");
-    if (parts.length === 3) {
-      return `${Number(parts[1])}-${Number(parts[0])}-${parts[2]}`;
+    const [day, month, year] = inputDate.split(".");
+    if (day && month && year) {
+      return `${Number(month)}-${Number(day)}-${year}`;
     }
   }
   if (inputDate.includes("-")) {
-    const parts = inputDate.split("-");
-    if (parts.length === 3 && parts[0].length === 4) {
-      return `${Number(parts[1])}-${Number(parts[2])}-${parts[0]}`;
+    const [year, month, day] = inputDate.split("-");
+    if (year && month && day && year.length === 4) {
+      return `${Number(month)}-${Number(day)}-${year}`;
     }
   }
   return inputDate;
 };
-
 
 export default function Main() {
   const navigate = useNavigate();
@@ -135,11 +130,20 @@ export default function Main() {
   const [date, setDate] = useState("");
   const [sum, setSum] = useState("");
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const applyTransactionsData = (data) => {
+    if (Array.isArray(data)) {
+      setTransactions(data);
+    } else if (data?.transactions) {
+      setTransactions(data.transactions);
+    }
+  };
 
   const fetchTransactionsList = async () => {
     try {
       const data = await getTransactions();
-      setTransactions(Array.isArray(data) ? data : data.transactions || []);
+      applyTransactionsData(data);
     } catch (err) {
       setError(err.message);
     }
@@ -155,55 +159,62 @@ export default function Main() {
   };
 
   const handleDelete = async (id) => {
+    setError(null);
     try {
       const updated = await deleteTransaction(id);
-      if (Array.isArray(updated)) {
-        setTransactions(updated);
+      if (Array.isArray(updated) || updated?.transactions) {
+        applyTransactionsData(updated);
       } else {
-        setTransactions((prev) => prev.filter((item) => item._id !== id));
+        setTransactions((prev) => prev.filter((item) => (item._id || item.id) !== id));
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Ошибка при удалении расхода");
     }
+  };
+
+  const validateForm = () => {
+    if (description.trim().length < 4) {
+      return "Описание должно быть не менее 4 символов";
+    }
+    if (!date.trim()) {
+      return "Пожалуйста, введите дату";
+    }
+    if (!sum || Number(sum) <= 0) {
+      return "Пожалуйста, введите положительную сумму";
+    }
+    return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
-    if (description.trim().length < 4) {
-      setError("Описание должно быть не менее 4 символов");
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
-    if (!date.trim()) {
-      setError("Пожалуйста, введите дату");
-      return;
-    }
-
-    const numericSum = Number(sum);
-    if (!sum || numericSum <= 0) {
-      setError("Пожалуйста, введите положительную сумму");
-      return;
-    }
-
+    setIsLoading(true);
     try {
       const updated = await addTransaction({
         description: description.trim(),
-        sum: numericSum,
+        sum: Number(sum),
         category,
         date: formatDateForApi(date.trim()),
       });
       setDescription("");
       setDate("");
       setSum("");
-      if (Array.isArray(updated)) {
-        setTransactions(updated);
+      if (Array.isArray(updated) || updated?.transactions) {
+        applyTransactionsData(updated);
       } else {
-        fetchTransactionsList();
+        await fetchTransactionsList();
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Ошибка при добавлении расхода");
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -240,47 +251,52 @@ export default function Main() {
           <section className="table-section">
             <div className="card-wrapper">
               <h3>Таблица расходов</h3>
-              <table className="transactions-table">
-                <thead>
-                  <tr>
-                    <th>Описание</th>
-                    <th>Категория</th>
-                    <th>Дата</th>
-                    <th>Сумма</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions.length === 0 ? (
+              <div className="table-responsive">
+                <table className="transactions-table">
+                  <thead>
                     <tr>
-                      <td colSpan="5" className="empty-table-cell">
-                        Расходов пока нет
-                      </td>
+                      <th>Описание</th>
+                      <th>Категория</th>
+                      <th>Дата</th>
+                      <th>Сумма</th>
+                      <th></th>
                     </tr>
-                  ) : (
-                    transactions.map((item, index) => (
-                      <tr key={item._id || index}>
-                        <td>{item.description}</td>
-                        <td>{CATEGORIES_MAP[item.category] || "Другое"}</td>
-                        <td>{formatDateForDisplay(item.date)}</td>
-                        <td className="amount-cell">{item.sum} ₽</td>
-                        <td className="action-cell">
-                          {item._id && (
-                            <button
-                              type="button"
-                              className="delete-btn"
-                              onClick={() => handleDelete(item._id)}
-                              title="Удалить"
-                            >
-                              <TrashIcon />
-                            </button>
-                          )}
+                  </thead>
+                  <tbody>
+                    {transactions.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="empty-table-cell">
+                          Расходов пока нет
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      transactions.map((item, index) => {
+                        const transactionId = item._id || item.id;
+                        return (
+                          <tr key={transactionId || index}>
+                            <td>{item.description}</td>
+                            <td>{CATEGORIES_MAP[item.category] || "Другое"}</td>
+                            <td>{formatDateForDisplay(item.date)}</td>
+                            <td className="amount-cell">{item.sum} ₽</td>
+                            <td className="action-cell">
+                              {transactionId && (
+                                <button
+                                  type="button"
+                                  className="delete-btn"
+                                  onClick={() => handleDelete(transactionId)}
+                                  title="Удалить"
+                                >
+                                  <TrashIcon />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </section>
 
@@ -297,6 +313,7 @@ export default function Main() {
                     placeholder="Введите описание"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -309,6 +326,7 @@ export default function Main() {
                         key={cat.key}
                         className={`category-pill ${category === cat.key ? "active" : ""}`}
                         onClick={() => setCategory(cat.key)}
+                        disabled={isLoading}
                       >
                         <span className="pill-icon">{cat.icon}</span>
                         <span>{cat.label}</span>
@@ -325,6 +343,7 @@ export default function Main() {
                     placeholder="ДД.ММ.ГГГГ (например, 03.07.2026)"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -336,11 +355,12 @@ export default function Main() {
                     placeholder="Введите сумму"
                     value={sum}
                     onChange={(e) => setSum(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
 
-                <button type="submit" className="ui-btn primary">
-                  Добавить новый расход
+                <button type="submit" className="ui-btn primary" disabled={isLoading}>
+                  {isLoading ? "Добавление..." : "Добавить новый расход"}
                 </button>
               </form>
             </div>

@@ -31,9 +31,8 @@ const MONTHS_NAMES = [
 
 const DAYS_OF_WEEK = ["пн", "вт", "ср", "чт", "пт", "сб", "вс"];
 
-const formatDateForApi = (dateObj) => {
-  return `${dateObj.getMonth() + 1}-${dateObj.getDate()}-${dateObj.getFullYear()}`;
-};
+const formatDateForApi = (dateObj) =>
+  `${dateObj.getMonth() + 1}-${dateObj.getDate()}-${dateObj.getFullYear()}`;
 
 const formatDateForDisplay = (dateObj) => {
   if (!dateObj) return "";
@@ -52,6 +51,7 @@ const generateMonthsList = () => {
   }
   return result;
 };
+
 export default function Analytics() {
   const navigate = useNavigate();
   const [monthsList] = useState(generateMonthsList);
@@ -60,11 +60,28 @@ export default function Analytics() {
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState(null);
 
+  const applyTransactionsData = (data) => {
+    setTransactions(Array.isArray(data) ? data : data?.transactions || []);
+  };
+
   const loadAllTransactions = async () => {
     try {
       setError(null);
       const data = await getTransactions();
-      setTransactions(Array.isArray(data) ? data : data.transactions || []);
+      applyTransactionsData(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const fetchPeriodTransactions = async (start, end) => {
+    try {
+      setError(null);
+      const data = await getTransactionsByPeriod(
+        formatDateForApi(start),
+        formatDateForApi(end)
+      );
+      applyTransactionsData(data);
     } catch (err) {
       setError(err.message);
     }
@@ -80,35 +97,16 @@ export default function Analytics() {
     if (!startDate || (startDate && endDate)) {
       setStartDate(clickedDate);
       setEndDate(null);
-      try {
-        setError(null);
-        const formatted = formatDateForApi(clickedDate);
-        const data = await getTransactionsByPeriod(formatted, formatted);
-        setTransactions(Array.isArray(data) ? data : data.transactions || []);
-      } catch (err) {
-        setError(err.message);
-      }
-    } else {
-      let start = startDate;
-      let end = clickedDate;
-      if (clickedDate < startDate) {
-        start = clickedDate;
-        end = startDate;
-      }
-      setStartDate(start);
-      setEndDate(end);
-
-      try {
-        setError(null);
-        const data = await getTransactionsByPeriod(
-          formatDateForApi(start),
-          formatDateForApi(end)
-        );
-        setTransactions(Array.isArray(data) ? data : data.transactions || []);
-      } catch (err) {
-        setError(err.message);
-      }
+      await fetchPeriodTransactions(clickedDate, clickedDate);
+      return;
     }
+
+    const [start, end] =
+      clickedDate < startDate ? [clickedDate, startDate] : [startDate, clickedDate];
+
+    setStartDate(start);
+    setEndDate(end);
+    await fetchPeriodTransactions(start, end);
   };
 
   const handleResetPeriod = () => {
@@ -139,31 +137,34 @@ export default function Analytics() {
 
   const totalsByCategory = transactions.reduce((acc, curr) => {
     const cat = curr.category || "others";
-    const sum = Number(curr.sum) || 0;
-    acc[cat] = (acc[cat] || 0) + sum;
+    acc[cat] = (acc[cat] || 0) + (Number(curr.sum) || 0);
     return acc;
   }, {});
 
   const totalAmount = Object.values(totalsByCategory).reduce((a, b) => a + b, 0);
   const maxCategoryAmount = Math.max(...Object.values(totalsByCategory), 0);
 
-  const chartData = Object.keys(CATEGORIES_MAP).map((key) => {
+  const chartData = Object.entries(CATEGORIES_MAP).map(([key, { label, color }]) => {
     const amount = totalsByCategory[key] || 0;
     const heightPercentage =
       maxCategoryAmount > 0 ? Math.round((amount / maxCategoryAmount) * 100) : 0;
+
     return {
-      category: CATEGORIES_MAP[key].label,
+      key,
+      category: label,
       amount,
-      color: CATEGORIES_MAP[key].color,
+      color,
       height: amount > 0 ? `${Math.max(heightPercentage, 6)}%` : "4px",
     };
   });
 
-  const periodSubtitle = startDate
-    ? endDate
-      ? `Расходы за ${formatDateForDisplay(startDate)} — ${formatDateForDisplay(endDate)}`
-      : `Расходы за ${formatDateForDisplay(startDate)}`
-    : "Расходы за весь период";
+  const getPeriodSubtitle = () => {
+    if (!startDate) return "Расходы за весь период";
+    if (endDate) {
+      return `Расходы за ${formatDateForDisplay(startDate)} — ${formatDateForDisplay(endDate)}`;
+    }
+    return `Расходы за ${formatDateForDisplay(startDate)}`;
+  };
   return (
     <div className="analytics-page">
       <header className="main-header">
@@ -200,7 +201,11 @@ export default function Analytics() {
             <div className="filter-card-header">
               <h3>Период</h3>
               {startDate && (
-                <button type="button" className="reset-period-btn" onClick={handleResetPeriod}>
+                <button
+                  type="button"
+                  className="reset-period-btn"
+                  onClick={handleResetPeriod}
+                >
                   Сбросить
                 </button>
               )}
@@ -260,15 +265,17 @@ export default function Analytics() {
           <section className="chart-card">
             <div className="chart-header">
               <h3>{totalAmount.toLocaleString("ru-RU")} ₽</h3>
-              <p className="chart-subtitle">{periodSubtitle}</p>
+              <p className="chart-subtitle">{getPeriodSubtitle()}</p>
             </div>
 
             <div className="chart-wrapper">
               <div className="bars-container">
-                {chartData.map((item, index) => (
-                  <div className="chart-column" key={index}>
+                {chartData.map((item) => (
+                  <div className="chart-column" key={item.key}>
                     <div className="bar-wrapper">
-                      <span className="bar-tooltip">{item.amount.toLocaleString("ru-RU")} ₽</span>
+                      <span className="bar-tooltip">
+                        {item.amount.toLocaleString("ru-RU")} ₽
+                      </span>
                       <div
                         className="chart-bar"
                         style={{

@@ -1,53 +1,43 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import "./Header.css";
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/auth");
+  };
 
   return (
-    <header
-      style={{
-        display: "flex",
-        justifyContent: "between",
-        alignItems: "center",
-        padding: "16px 40px",
-        background: "#2e2e2e",
-        borderBottom: "1px solid #4e4e4e",
-        color: "#fff",
-        fontFamily: "sans-serif",
-      }}
-    >
-      <div
-        onClick={() => navigate("/main")}
-        style={{ fontWeight: "bold", fontSize: "20px", cursor: "pointer" }}
-      >
+    <header className="header">
+      <div className="header__logo" onClick={() => navigate("/main")}>
         SkyproWallet
       </div>
-      <nav style={{ display: "flex", gap: "24px" }}>
+
+      <nav className="header__nav">
         <span
           onClick={() => navigate("/main")}
-          style={{ cursor: "pointer", color: "#a5a5a5" }}
+          className={`header__link ${
+            location.pathname === "/main" ? "header__link--active" : ""
+          }`}
         >
           Главная
         </span>
         <span
           onClick={() => navigate("/analytics")}
-          style={{ cursor: "pointer", color: "#a5a5a5" }}
+          className={`header__link ${
+            location.pathname === "/analytics" ? "header__link--active" : ""
+          }`}
         >
-          Анализы
+          Аналитика
         </span>
       </nav>
-      <button
-        onClick={() => navigate("/auth")}
-        style={{
-          padding: "8px 16px",
-          background: "transparent",
-          border: "1px solid #565ee7",
-          borderRadius: "6px",
-          color: "#fff",
-          cursor: "pointer",
-        }}
-      >
+
+      <button className="header__logout-btn" onClick={handleLogout}>
         Выйти
       </button>
     </header>
