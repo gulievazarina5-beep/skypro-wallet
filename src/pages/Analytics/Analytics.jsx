@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getTransactions, getTransactionsByPeriod } from "../../api/index";
 import "./Analytics.css";
+import { CATEGORIES } from "../../constants/categories";
 
 const LogoIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -116,9 +117,11 @@ export default function Analytics() {
   };
 
   const handleLogout = () => {
+    if (!window.confirm("Вы уверены, что хотите выйти из аккаунта?")) return;
     localStorage.removeItem("token");
     navigate("/auth");
   };
+
 
   const isSameDay = (d1, d2) => {
     if (!d1 || !d2) return false;
@@ -144,7 +147,7 @@ export default function Analytics() {
   const totalAmount = Object.values(totalsByCategory).reduce((a, b) => a + b, 0);
   const maxCategoryAmount = Math.max(...Object.values(totalsByCategory), 0);
 
-  const chartData = Object.entries(CATEGORIES_MAP).map(([key, { label, color }]) => {
+  const chartData = Object.entries(CATEGORIES).map(([key, { label, color }]) => {
     const amount = totalsByCategory[key] || 0;
     const heightPercentage =
       maxCategoryAmount > 0 ? Math.round((amount / maxCategoryAmount) * 100) : 0;

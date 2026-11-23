@@ -243,6 +243,8 @@
 
     .filter-card,
     .chart-card {
+        min-width: 0;
+        width: 100%;
         padding: 20px 16px;
         border-radius: 20px;
     }
@@ -260,13 +262,28 @@
         height: 260px;
     }
 
+    .bars-container {
+        min-width: 0;
+        width: 100%;
+        gap: 6px;
+    }
+
     .chart-bar {
-        width: 48px;
+        width: 32px;
+        border-radius: 8px;
     }
 
     .bar-tooltip {
-        font-size: 13px;
-        top: -20px;
+        font-size: 11px;
+        top: -18px;
+    }
+
+    .bar-label {
+        font-size: 10px;
+        margin-top: 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 50px;
     }
 
     .calendar-day {
